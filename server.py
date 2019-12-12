@@ -43,7 +43,7 @@ def thread_log():
         log_writer = csv.writer(log_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
         log_writer.writerow(['Time', 'TCP Traffic (Mbit/s)'])
         while log_alive:
-            time.sleep(1)
+            time.sleep(0.5)
             if data_per_sec:
                 logging.info('%d bytes recebidos (%.2f Mb/s)', data_per_sec, data_per_sec*8/1000000)
             log_writer.writerow([datetime.datetime.now().isoformat(), data_per_sec*8/1000000])
