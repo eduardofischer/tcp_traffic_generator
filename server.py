@@ -6,7 +6,8 @@ import getopt
 import sys, os
 import csv
 import pandas as pd
-import plotly.express as px
+import plotly
+import plotly.graph_objs as go
 
 PORT = 4000 # Default server port
 data_per_sec = 0
@@ -33,6 +34,8 @@ for (current_arg, current_value) in args:
 def thread_log():
     global data_per_sec, log_alive
     i = 0
+    data = []
+
     while os.path.exists("server_log%s.csv" % i):
         i += 1
 
@@ -45,8 +48,17 @@ def thread_log():
                 logging.info('%d bytes recebidos (%.2f Mb/s)', data_per_sec, data_per_sec*8/1000000)
             log_writer.writerow([datetime.datetime.now().isoformat(), data_per_sec*8/1000000])
             data_per_sec = 0
-    df = pd.read_csv('server_log%s.csv' % i)
-    fig = px.line(df, x = 'Time', y = 'TCP Traffic (Mbit/s)')
+    for x in range(i+1):
+        df = pd.read_csv('server_log%s.csv' % x)
+        trace = go.Scatter(
+            x = df['Time'].tolist(),
+            y = df['TCP Traffic (Mbit/s)'].tolist(),
+            mode = 'lines',
+            name = 'Server %d' % x
+        )
+        data.append(trace)
+        # fig = px.line(df, x = 'Time', y = 'TCP Traffic (Mbit/s)')
+    fig = go.Figure(data=data)
     fig.show()
 
 log = threading.Thread(target=thread_log)
