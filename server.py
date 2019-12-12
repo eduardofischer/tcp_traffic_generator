@@ -44,6 +44,7 @@ def thread_log():
             time.sleep(REFRESH_RATE)
             if data_per_sec:
                 logging.info('%d bytes recebidos (%.2f Mb/s)', data_per_sec, data_per_sec*8/(1000000 * REFRESH_RATE))
+            log_writer.writerow([datetime.datetime.now().isoformat(), data_per_sec*8/1000000])
             data_per_sec = 0
 
 log = threading.Thread(target=thread_log)
