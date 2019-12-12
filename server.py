@@ -1,9 +1,9 @@
 import socket
 import threading
 import logging
-import time
+import time, datetime
 import getopt
-import sys
+import sys, os
 import csv
 import pandas as pd
 import plotly.express as px
@@ -29,24 +29,24 @@ for (current_arg, current_value) in args:
     if current_arg == '-p':
         PORT = int(current_value)
 
-
-
 # Logging thread
 def thread_log():
     global data_per_sec, log_alive
-    time_count = 0
-    with open('server_log.csv', mode='w') as log_file:
+    i = 0
+    while os.path.exists("server_log%s.csv" % i):
+        i += 1
+
+    with open('server_log%s.csv' % i, 'w') as log_file:
         log_writer = csv.writer(log_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-        log_writer.writerow(['Time (sec)', 'TCP Traffic (Mbit/s)'])
+        log_writer.writerow(['Time', 'TCP Traffic (Mbit/s)'])
         while log_alive:
             time.sleep(1)
             if data_per_sec:
-                logging.info('%d bytes recebidos (%f Mb/s)', data_per_sec, data_per_sec*8/1000000)
-            log_writer.writerow([time_count, data_per_sec*8/1000000])
+                logging.info('%d bytes recebidos (%.2f Mb/s)', data_per_sec, data_per_sec*8/1000000)
+            log_writer.writerow([datetime.datetime.now().isoformat(), data_per_sec*8/1000000])
             data_per_sec = 0
-            time_count += 1
-    df = pd.read_csv('server_log.csv')
-    fig = px.line(df, x = 'Time (sec)', y = 'TCP Traffic (Mbit/s)')
+    df = pd.read_csv('server_log%s.csv' % i)
+    fig = px.line(df, x = 'Time', y = 'TCP Traffic (Mbit/s)')
     fig.show()
 
 log = threading.Thread(target=thread_log)
