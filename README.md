@@ -1,9 +1,6 @@
 # TCP Traffic Generator
 Simple client/server program that generates a lot of TCP traffic for experimental purposes
 
-### Instalation
-`pip install -r requirements.txt`
-
 ### Usage
 #### Server
 `python3 server.py [-p PORT]`
