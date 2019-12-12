@@ -2,7 +2,7 @@
 Simple client/server program that generates a lot of TCP traffic for experimental purposes
 
 ### Instalation
-`pip install -r requirements.txt`
+`pip3 install -r requirements.txt`
 
 ### Usage
 #### Server
