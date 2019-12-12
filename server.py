@@ -10,7 +10,8 @@ import plotly
 import plotly.graph_objs as go
 
 PORT = 4000 # Default server port
-data_per_sec = 0
+REFRESH_PERIOD = 0.5
+data_per_period = 0
 log_alive = 1
 
 # Logging config
@@ -32,7 +33,7 @@ for (current_arg, current_value) in args:
 
 # Logging thread
 def thread_log():
-    global data_per_sec, log_alive
+    global data_per_period, log_alive
     i = 0
     data = []
 
@@ -43,11 +44,11 @@ def thread_log():
         log_writer = csv.writer(log_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
         log_writer.writerow(['Time', 'TCP Traffic (Mbit/s)'])
         while log_alive:
-            time.sleep(0.5)
-            if data_per_sec:
-                logging.info('%d bytes recebidos (%.2f Mb/s)', data_per_sec, data_per_sec*8/1000000)
-            log_writer.writerow([datetime.datetime.now().isoformat(), data_per_sec*8/1000000])
-            data_per_sec = 0
+            time.sleep(REFRESH_PERIOD)
+            if data_per_period:
+                logging.info('%d bytes recebidos (%.2f Mb/s)', data_per_period, data_per_period*8/(1000000 * REFRESH_PERIOD))
+            log_writer.writerow([datetime.datetime.now().isoformat(), data_per_period*8/(1000000 * REFRESH_PERIOD)])
+            data_per_period = 0
     for x in range(i+1):
         df = pd.read_csv('server_log%s.csv' % x)
         trace = go.Scatter(
@@ -57,7 +58,6 @@ def thread_log():
             name = 'Server %d' % x
         )
         data.append(trace)
-        # fig = px.line(df, x = 'Time', y = 'TCP Traffic (Mbit/s)')
     fig = go.Figure(data=data)
     fig.show()
 
@@ -77,7 +77,7 @@ try:
                 while True:
                     data = conn.recv(4096)
                     if not data: break
-                    data_per_sec += sys.getsizeof(data)
+                    data_per_period += sys.getsizeof(data)
                 logging.info('Client %s:%d disconnected', addr[0], addr[1])
 except KeyboardInterrupt:
     log_alive = 0
