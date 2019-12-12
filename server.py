@@ -7,6 +7,7 @@ import sys, os
 import csv
 
 PORT = 4000 # Default server port
+REFRESH_RATE = 0.5
 data_per_sec = 0
 log_alive = 1
 
@@ -40,9 +41,9 @@ def thread_log():
         log_writer = csv.writer(log_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
         log_writer.writerow(['Time', 'TCP Traffic (Mbit/s)'])
         while log_alive:
-            time.sleep(1)
+            time.sleep(REFRESH_RATE)
             if data_per_sec:
-                logging.info('%d bytes recebidos (%.2f Mb/s)', data_per_sec, data_per_sec*8/1000000)
+                logging.info('%d bytes recebidos (%.2f Mb/s)', data_per_sec, data_per_sec*8/(1000000 * REFRESH_RATE))
             data_per_sec = 0
 
 log = threading.Thread(target=thread_log)
