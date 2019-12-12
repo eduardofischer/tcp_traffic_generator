@@ -8,7 +8,7 @@ import csv
 
 PORT = 4000 # Default server port
 REFRESH_RATE = 0.5
-data_per_sec = 0
+data_per_period = 0
 log_alive = 1
 
 # Logging config
@@ -30,9 +30,8 @@ for (current_arg, current_value) in args:
 
 # Logging thread
 def thread_log():
-    global data_per_sec, log_alive
+    global data_per_period, log_alive
     i = 0
-    data = []
 
     while os.path.exists("server_log%s.csv" % i):
         i += 1
@@ -42,10 +41,10 @@ def thread_log():
         log_writer.writerow(['Time', 'TCP Traffic (Mbit/s)'])
         while log_alive:
             time.sleep(REFRESH_RATE)
-            if data_per_sec:
-                logging.info('%d bytes recebidos (%.2f Mb/s)', data_per_sec, data_per_sec*8/(1000000 * REFRESH_RATE))
-            log_writer.writerow([datetime.datetime.now().isoformat(), data_per_sec*8/1000000])
-            data_per_sec = 0
+            if data_per_period:
+                logging.info('%d bytes recebidos (%.2f Mb/s)', data_per_period, data_per_period*8/(1000000 * REFRESH_RATE))
+            log_writer.writerow([datetime.datetime.now().isoformat(), data_per_period*8/(1000000 * REFRESH_RATE)])
+            data_per_period = 0
 
 log = threading.Thread(target=thread_log)
 
@@ -63,7 +62,7 @@ try:
                 while True:
                     data = conn.recv(4096)
                     if not data: break
-                    data_per_sec += sys.getsizeof(data)
+                    data_per_period += sys.getsizeof(data)
                 logging.info('Client %s:%d disconnected', addr[0], addr[1])
 except KeyboardInterrupt:
     log_alive = 0
