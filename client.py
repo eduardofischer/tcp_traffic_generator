@@ -30,9 +30,8 @@ try:
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as tcp:
         tcp.connect((SERVER, PORT))
         logging.info('Connected to %s:%d', SERVER, PORT)
-        data = bytes(4096)
+        data = bytes(65000)
         while True:
             tcp.send(data)
-            # logging.info('Client %d', PORT)
 except KeyboardInterrupt:
     print('Client stopped')
