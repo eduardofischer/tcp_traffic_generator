@@ -19,7 +19,7 @@ logging.basicConfig(format='[%(asctime)s] %(message)s', level=logging.INFO, date
 
 # Tratamento dos argumentos da linha de comando
 raw_args = sys.argv[1:]
-unixOptions = "hp:"
+unixOptions = "r:p:"
 
 try:
     args, values = getopt.getopt(raw_args, unixOptions)
@@ -30,6 +30,8 @@ except getopt.error as err:
 for (current_arg, current_value) in args:
     if current_arg == '-p':
         PORT = int(current_value)
+    elif current_arg == '-r':
+        REFRESH_PERIOD = float(current_value)
 
 # Logging thread
 def thread_log():
